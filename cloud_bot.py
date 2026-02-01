@@ -10,7 +10,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, Comma
 # 👇 YOUR CONFIGURATION (ALREADY FILLED) 👇
 # ==========================================
 # I have put your specific numbers here. Do not change them!
-BOT_TOKEN = "8410712491:AAG8RAbd2rql_0yiAlt8HuUWKyQwTn6jO2E"
+BOT_TOKEN = "8410712491:AAG8RAbd2rql_0yiAIt8HuUWKyQwTn6j02E"
 CHANNEL_ID = -1003798813712
 DB_MESSAGE_ID = 15
 # ==========================================
@@ -156,3 +156,4 @@ if __name__ == '__main__':
     application.add_handler(MessageHandler(filters.Document.ALL | filters.VIDEO | filters.PHOTO, store_file))
     
     application.run_polling()
+
