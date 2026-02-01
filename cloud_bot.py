@@ -7,33 +7,43 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters
 
 # ==========================================
-# 👇 CONFIGURATION (ALREADY FILLED FOR YOU) 👇
+# 👇 YOUR CONFIGURATION (ALREADY FILLED) 👇
 # ==========================================
-# 1. PASTE YOUR TOKEN HERE (Keep the quotes!)
-BOT_TOKEN = "8410712491:AAG8RAbd2rql_0yiAIt8HuUWKyQwTn6j02E" 
-
-# 2. YOUR CHANNEL DETAILS (Do not change these)
+# I have put your specific numbers here. Do not change them!
+BOT_TOKEN = "8410712491:AAG8RAbd2rql_0yiAlt8HuUWKyQwTn6jO2E"
 CHANNEL_ID = -1003798813712
-DB_MESSAGE_ID = 10
+DB_MESSAGE_ID = 15
 # ==========================================
 
-# --- PART 1: TELEGRAM DATABASE SYSTEM ---
-# This system reads/writes the file list directly to your Pinned Message.
+# --- PART 1: MEMORY SYSTEM (FIXED) ---
 
 async def get_db(context):
-    """Downloads the list of files from the Pinned Message in your channel."""
+    """Downloads the file list from the PINNED message in your channel."""
     try:
-        pinned_msg = await context.bot.get_message(chat_id=CHANNEL_ID, message_id=DB_MESSAGE_ID)
+        # 1. Get the Channel Information
+        chat = await context.bot.get_chat(CHANNEL_ID)
+        
+        # 2. Get the Pinned Message directly from the channel
+        pinned_msg = chat.pinned_message
+        
+        if not pinned_msg:
+            print("❌ Error: No pinned message found in the channel!")
+            return {}
+            
+        # 3. Read the text inside the pinned message
         db_text = pinned_msg.text
         return json.loads(db_text)
+
     except Exception as e:
-        print(f"⚠️ Error loading DB (Ignore if first time): {e}")
+        print(f"⚠️ Error loading DB: {e}")
         return {}
 
 async def save_db(context, new_db):
-    """Uploads the new list of files back to the Pinned Message."""
+    """Uploads the new list back to the Pinned Message."""
     try:
         db_text = json.dumps(new_db)
+        
+        # We edit the message using your Specific ID (15)
         await context.bot.edit_message_text(
             chat_id=CHANNEL_ID,
             message_id=DB_MESSAGE_ID,
@@ -65,10 +75,10 @@ async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # 2. Forward to Channel
         forwarded = await update.message.forward(chat_id=CHANNEL_ID)
         
-        # 3. Update The Pinned Message Database
-        db = await get_db(context)           # Download current list
-        db[file_name] = forwarded.message_id # Add new file
-        await save_db(context, db)           # Upload new list back to channel
+        # 3. Update Database (Read -> Add -> Save)
+        db = await get_db(context)
+        db[file_name] = forwarded.message_id
+        await save_db(context, db)
         
         await context.bot.edit_message_text(
             chat_id=update.effective_chat.id,
@@ -76,7 +86,11 @@ async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text=f"✅ **Saved!**\nName: `{file_name}`"
         )
     except Exception as e:
-        await update.message.reply_text(f"❌ Error: {e}")
+        await context.bot.edit_message_text(
+            chat_id=update.effective_chat.id,
+            message_id=msg.message_id,
+            text=f"❌ Error: {e}"
+        )
 
 async def find_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
@@ -84,9 +98,8 @@ async def find_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     search = " ".join(context.args).lower()
-    db = await get_db(context) # Get fresh list from channel
+    db = await get_db(context)
     
-    # Find matches
     found = [name for name in db if search in name.lower()]
 
     if not found:
@@ -95,7 +108,6 @@ async def find_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
     await update.message.reply_text(f"🔍 Found {len(found)} files.")
     
-    # Send files back to user
     for name in found:
         try:
             msg_id = db[name]
@@ -119,7 +131,7 @@ async def list_files(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = "📂 **Your Files:**\n\n" + "\n".join([f"• `{f}`" for f in files])
     await update.message.reply_text(text)
 
-# --- PART 3: KEEP-ALIVE SERVER (For Free Hosting) ---
+# --- PART 3: KEEP-ALIVE SERVER (FOR RENDER) ---
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -131,18 +143,16 @@ def run_server():
     server = HTTPServer(('0.0.0.0', 8080), SimpleHandler)
     server.serve_forever()
 
-# --- PART 4: MAIN EXECUTION ---
-
 if __name__ == '__main__':
-    # Start the dummy web server in background (Keeps Render awake)
+    # Start the web server to keep Render awake
     threading.Thread(target=run_server, daemon=True).start()
     
     # Start the Bot
+    print("Starting Bot...")
     application = ApplicationBuilder().token(BOT_TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("find", find_file))
     application.add_handler(CommandHandler("list", list_files))
     application.add_handler(MessageHandler(filters.Document.ALL | filters.VIDEO | filters.PHOTO, store_file))
     
-    print("✅ Bot is running...")
     application.run_polling()
