@@ -7,33 +7,23 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters
 
 # ==========================================
-# 👇 YOUR CONFIGURATION (ALREADY FILLED) 👇
+# 👇 YOUR CONFIGURATION 👇
 # ==========================================
-# I have put your specific numbers here. Do not change them!
-BOT_TOKEN = "8410712491:AAG8RAbd2rql_0yiAIt8HuUWKyQwTn6j02E"
+BOT_TOKEN = "8410712491:AAG8RAbd2rql_0yiAlt8HuUWKyQwTn6jO2E"
 CHANNEL_ID = -1003798813712
 DB_MESSAGE_ID = 15
 # ==========================================
 
-# --- PART 1: MEMORY SYSTEM (FIXED) ---
+# --- PART 1: MEMORY SYSTEM ---
 
 async def get_db(context):
-    """Downloads the file list from the PINNED message in your channel."""
+    """Downloads the file list from the PINNED message."""
     try:
-        # 1. Get the Channel Information
         chat = await context.bot.get_chat(CHANNEL_ID)
-        
-        # 2. Get the Pinned Message directly from the channel
         pinned_msg = chat.pinned_message
-        
         if not pinned_msg:
-            print("❌ Error: No pinned message found in the channel!")
             return {}
-            
-        # 3. Read the text inside the pinned message
-        db_text = pinned_msg.text
-        return json.loads(db_text)
-
+        return json.loads(pinned_msg.text)
     except Exception as e:
         print(f"⚠️ Error loading DB: {e}")
         return {}
@@ -42,8 +32,6 @@ async def save_db(context, new_db):
     """Uploads the new list back to the Pinned Message."""
     try:
         db_text = json.dumps(new_db)
-        
-        # We edit the message using your Specific ID (15)
         await context.bot.edit_message_text(
             chat_id=CHANNEL_ID,
             message_id=DB_MESSAGE_ID,
@@ -58,12 +46,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 **I am your Permanent Cloud Bot.**\n\n"
         "📂 **Store:** Send me any file.\n"
-        "🔍 **Find:** Send `/find name`\n"
-        "📜 **List:** Send `/list`"
+        "🔍 **Find:** `/find name`\n"
+        "🗑️ **Delete:** `/delete name`\n"
+        "📜 **List:** `/list`"
     )
 
 async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # 1. Get File Name
     file_name = "unknown"
     if update.message.document: file_name = update.message.document.file_name
     elif update.message.video: file_name = update.message.video.file_name or "video.mp4"
@@ -72,10 +60,7 @@ async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = await update.message.reply_text("☁️ Saving...")
 
     try:
-        # 2. Forward to Channel
         forwarded = await update.message.forward(chat_id=CHANNEL_ID)
-        
-        # 3. Update Database (Read -> Add -> Save)
         db = await get_db(context)
         db[file_name] = forwarded.message_id
         await save_db(context, db)
@@ -99,7 +84,6 @@ async def find_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     search = " ".join(context.args).lower()
     db = await get_db(context)
-    
     found = [name for name in db if search in name.lower()]
 
     if not found:
@@ -107,7 +91,6 @@ async def find_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
         
     await update.message.reply_text(f"🔍 Found {len(found)} files.")
-    
     for name in found:
         try:
             msg_id = db[name]
@@ -120,18 +103,38 @@ async def find_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             pass
 
+async def delete_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """NEW: Deletes a file from the database."""
+    if not context.args:
+        await update.message.reply_text("❌ Use: `/delete <exact_name>`\n(Tip: Copy the name from /list)")
+        return
+
+    target_name = " ".join(context.args)
+    db = await get_db(context)
+
+    if target_name not in db:
+        await update.message.reply_text(f"❌ File `{target_name}` not found in list.")
+        return
+
+    # Delete from the dictionary
+    del db[target_name]
+    
+    # Save the new list
+    await save_db(context, db)
+    
+    await update.message.reply_text(f"🗑️ **Deleted:** `{target_name}`")
+
 async def list_files(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = await get_db(context)
     if not db:
         await update.message.reply_text("📂 Cloud is empty.")
         return
 
-    # Show last 20 files
     files = list(db.keys())[-20:]
-    text = "📂 **Your Files:**\n\n" + "\n".join([f"• `{f}`" for f in files])
+    text = "📂 **Your Files:**\n(Copy name to find or delete)\n\n" + "\n".join([f"`{f}`" for f in files])
     await update.message.reply_text(text)
 
-# --- PART 3: KEEP-ALIVE SERVER (FOR RENDER) ---
+# --- PART 3: SERVER ---
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -144,16 +147,16 @@ def run_server():
     server.serve_forever()
 
 if __name__ == '__main__':
-    # Start the web server to keep Render awake
     threading.Thread(target=run_server, daemon=True).start()
-    
-    # Start the Bot
-    print("Starting Bot...")
     application = ApplicationBuilder().token(BOT_TOKEN).build()
+    
+    # HANDLERS
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("find", find_file))
     application.add_handler(CommandHandler("list", list_files))
+    application.add_handler(CommandHandler("delete", delete_file))  # <--- NEW COMMAND
     application.add_handler(MessageHandler(filters.Document.ALL | filters.VIDEO | filters.PHOTO, store_file))
     
+    print("Bot is running...")
     application.run_polling()
-
+    
