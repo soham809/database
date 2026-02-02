@@ -9,7 +9,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, Comma
 # ==========================================
 # 👇 YOUR CONFIGURATION 👇
 # ==========================================
-BOT_TOKEN = "8410712491:AAFKeL-0LZug5tpj4a2OYcRv5WBEJ5BqX44"
+BOT_TOKEN = "8410712491:AAGm9dIzF3tgnLkDOGveixXd09Ktb4K5Tco"
 CHANNEL_ID = -1003798813712
 DB_MESSAGE_ID = 15
 # ==========================================
@@ -160,4 +160,5 @@ if __name__ == '__main__':
     print("Bot is running...")
     application.run_polling()
     
+
 
