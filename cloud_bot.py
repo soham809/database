@@ -7,7 +7,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters
 
 # ==========================================
-# 👇 PASTE YOUR TOKEN HERE 👇
+# 👇 YOUR TOKEN IS ALREADY FILLED 👇
 # ==========================================
 BOT_TOKEN = "8410712491:AAGm9dIzF3tgnLkDOGveixXd09Ktb4K5Tco"
 CHANNEL_ID = -1003798813712
@@ -27,13 +27,13 @@ async def save_db(context, new_db):
     except Exception as e: print(f"❌ Save Error: {e}")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ **Bot Updated!**\nSend me a file, and I will save it for Direct Download.")
+    await update.message.reply_text("✅ **Bot Updated!**\nSend me a NEW file to test the Download button.")
 
 async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # 1. GET FILE ID (The secret key for downloads)
     file_id = None
     file_name = "unknown"
     
+    # 1. GET THE FILE ID (This is the secret key for direct downloads)
     if update.message.document:
         file_id = update.message.document.file_id
         file_name = update.message.document.file_name
@@ -50,17 +50,20 @@ async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # 2. Forward to Channel (Backup)
         await update.message.forward(chat_id=CHANNEL_ID)
         
-        # 3. Save FILE ID to Database (Not Message ID!)
+        # 3. Save FILE ID to Database (The text string, NOT the number)
         db = await get_db(context)
-        db[file_name] = file_id  # <--- This is the key change!
+        db[file_name] = file_id 
         await save_db(context, db)
         
-        await context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=msg.message_id, 
-            text=f"✅ **Saved for Direct Download!**\nName: `{file_name}`")
+        await context.bot.edit_message_text(
+            chat_id=update.effective_chat.id, 
+            message_id=msg.message_id, 
+            text=f"✅ **Saved for Download!**\nName: `{file_name}`"
+        )
     except Exception as e:
         await context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=msg.message_id, text=f"❌ Error: {e}")
 
-# --- SERVER & HANDLERS ---
+# --- SERVER ---
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
