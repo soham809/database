@@ -78,3 +78,4 @@ if __name__ == '__main__':
     app.add_handler(MessageHandler(filters.Document.ALL | filters.VIDEO | filters.PHOTO, store_file))
     app.run_polling()
     
+
