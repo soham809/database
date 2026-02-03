@@ -9,7 +9,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, Comma
 # ==========================================
 # 👇 YOUR CREDENTIALS 👇
 # ==========================================
-BOT_TOKEN = "8410712491:AAEJoxKnp1idGzRWQQphvKNaCb0z2VwE44E"
+BOT_TOKEN = "8410712491:AAGKgtXtJorFKjaZTwqmU4Run9Unq80NIro"
 CHANNEL_ID = -1003798813712
 DB_MESSAGE_ID = 15
 # ==========================================
@@ -149,4 +149,5 @@ if __name__ == '__main__':
     print("🤖 Bot is Starting on Port 7860...")
     app.run_polling(drop_pending_updates=True)
                                                 
+
 
