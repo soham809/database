@@ -7,13 +7,14 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, filters
 
 # ==========================================
-# 👇 YOUR TOKEN IS ALREADY FILLED 👇
+# 👇 YOUR CREDENTIALS 👇
 # ==========================================
 BOT_TOKEN = "8410712491:AAGm9dIzF3tgnLkDOGveixXd09Ktb4K5Tco"
 CHANNEL_ID = -1003798813712
 DB_MESSAGE_ID = 15
 # ==========================================
 
+# --- DATABASE FUNCTIONS ---
 async def get_db(context):
     try:
         chat = await context.bot.get_chat(CHANNEL_ID)
@@ -30,104 +31,121 @@ async def save_db(context, new_db):
         )
     except Exception as e: print(f"❌ Save Error: {e}")
 
+# --- COMMANDS ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ **Bot Online!**\nSend a file to save it.\nUse `/find name` to get files.")
+    await update.message.reply_text("✅ **Bot Online (Hugging Face)!**\n- Send files here to save.\n- Upload to Channel to save.\n- Use `/find name` to get files.")
 
-async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    file_id = None
-    file_name = "unknown"
-    
-    if update.message.document:
-        file_id = update.message.document.file_id
-        file_name = update.message.document.file_name
-    elif update.message.video:
-        file_id = update.message.video.file_id
-        file_name = update.message.video.file_name or "video.mp4"
-    elif update.message.photo:
-        file_id = update.message.photo[-1].file_id
-        file_name = f"photo_{file_id[:5]}.jpg"
-
-    msg = await update.message.reply_text("☁️ Saving...")
-
-    try:
-        await update.message.forward(chat_id=CHANNEL_ID)
-        db = await get_db(context)
-        db[file_name] = file_id 
-        await save_db(context, db)
-        await context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=msg.message_id, text=f"✅ **Saved!**\n`{file_name}`")
-    except Exception as e:
-        await context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=msg.message_id, text=f"❌ Error: {e}")
+async def debug(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🐛 System Status: **Running on Port 7860**\nchannel_watcher: ON")
 
 async def list_files(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = await get_db(context)
     if not db:
-        await update.message.reply_text("📂 Empty.")
+        await update.message.reply_text("📂 Database is empty.")
         return
-    files = list(db.keys())[-20:]
-    await update.message.reply_text("📂 **Recent Files:**\n" + "\n".join([f"`{f}`" for f in files]))
+    files = list(db.keys())[-20:] 
+    await update.message.reply_text("📂 **Recent Files:**\n\n" + "\n".join([f"`{f}`" for f in files]))
 
 async def delete_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
-        await update.message.reply_text("❌ Use: `/delete name`")
+        await update.message.reply_text("❌ Usage: `/delete filename.pdf`")
         return
     target = " ".join(context.args)
     db = await get_db(context)
     if target in db:
         del db[target]
         await save_db(context, db)
-        await update.message.reply_text(f"🗑️ Deleted `{target}`")
+        await update.message.reply_text(f"🗑 **Deleted:** `{target}`")
     else:
-        await update.message.reply_text("❌ Not found.")
+        await update.message.reply_text(f"❌ Could not find: `{target}`")
 
-# 👇👇👇 THE NEW SMART FIND COMMAND 👇👇👇
+# 👇 THE SMART FIND COMMAND (Sends the actual file)
 async def find_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
-        await update.message.reply_text("❌ Use: `/find name`")
+        await update.message.reply_text("❌ Usage: `/find name`")
         return
     
     search = " ".join(context.args).lower()
     db = await get_db(context)
     
-    # Find all matches
     matches = {name: fid for name, fid in db.items() if search in name.lower()}
 
     if not matches:
         await update.message.reply_text("❌ No files found.")
         return
 
-    # IF FEW MATCHES -> SEND THE FILES!
+    # If few matches, SEND them!
     if len(matches) <= 3:
         await update.message.reply_text(f"🔍 Found {len(matches)} match(es). Sending...")
         for name, file_id in matches.items():
             try:
-                # Try sending as document (PDF, Video, etc.)
                 await context.bot.send_document(chat_id=update.effective_chat.id, document=file_id, caption=f"📄 {name}")
             except:
-                # If failed, it might be a photo
                 try:
                     await context.bot.send_photo(chat_id=update.effective_chat.id, photo=file_id, caption=f"🖼 {name}")
                 except:
                     await update.message.reply_text(f"❌ Error sending `{name}`")
-    
-    # IF MANY MATCHES -> SHOW LIST
     else:
-        await update.message.reply_text(f"🔍 **Found many files:**\n" + "\n".join([f"`{n}`" for n in matches.keys()]))
+        await update.message.reply_text(f"🔍 **Found many:**\n" + "\n".join([f"`{n}`" for n in matches.keys()]))
 
-# --- SERVER ---
+# --- FILE SAVER (Handles Channel + Private) ---
+async def store_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.channel_post if update.channel_post else update.message
+    if not msg: return
+
+    file_id = None
+    file_name = "unknown"
+    
+    if msg.document:
+        file_id = msg.document.file_id
+        file_name = msg.document.file_name
+    elif msg.video:
+        file_id = msg.video.file_id
+        file_name = msg.video.file_name or "video.mp4"
+    elif msg.photo:
+        file_id = msg.photo[-1].file_id
+        file_name = f"photo_{file_id[:5]}.jpg"
+    
+    if not file_id: return
+
+    try:
+        # If Private Chat -> Forward to Channel
+        if update.message:
+            await update.message.forward(chat_id=CHANNEL_ID)
+        
+        db = await get_db(context)
+        db[file_name] = file_id 
+        await save_db(context, db)
+        
+        # If Private Chat -> Confirm
+        if update.message:
+            await update.message.reply_text(f"✅ **Saved!**\n`{file_name}`")
+            
+    except Exception as e:
+        if update.message:
+            await update.message.reply_text(f"❌ Error: {e}")
+
+# --- SERVER KEEPALIVE (PORT 7860) ---
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
-        self.wfile.write(b"Bot Alive")
+        self.wfile.write(b"Hugging Face Bot Running")
 
-def run_server(): HTTPServer(('0.0.0.0', 8080), SimpleHandler).serve_forever()
+def run_server(): HTTPServer(('0.0.0.0', 7860), SimpleHandler).serve_forever()
 
 if __name__ == '__main__':
     threading.Thread(target=run_server, daemon=True).start()
     app = ApplicationBuilder().token(BOT_TOKEN).build()
+    
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("debug", debug))
     app.add_handler(CommandHandler("list", list_files))
     app.add_handler(CommandHandler("delete", delete_file))
-    app.add_handler(CommandHandler("find", find_file))
-    app.add_handler(MessageHandler(filters.Document.ALL | filters.VIDEO | filters.PHOTO, store_file))
-    app.run_polling()
+    app.add_handler(CommandHandler("find", find_file)) # ✅ Added Find
     
+    # Watch Channel AND Private Chats
+    app.add_handler(MessageHandler(filters.ALL, store_file))
+    
+    print("🤖 Bot is Starting on Port 7860...")
+    app.run_polling(drop_pending_updates=True)
+                                                
