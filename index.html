@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seema Caters - Premium Indian Catering</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Floating Contact Bar -->
+    <div class="floating-contact-bar">
+        <a href="tel:8094441904" class="contact-btn call-btn pulse-animation">
+            <i class="fas fa-phone"></i>
+        </a>
+        <a href="https://wa.me/918094441904" class="contact-btn whatsapp-btn pulse-animation">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Seema Caters</h1>
+            <p class="hero-subtitle">Exquisite Indian Cuisine for Life's Special Moments</p>
+            <button class="cta-button">Book Your Event</button>
+        </div>
+    </section>
+
+    <!-- About Owner Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title">About Our Owner</h2>
+            <div class="owner-card">
+                <div class="owner-image">
+                    <div class="glass-card">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=400&q=80" alt="Mr. Manoj Soni">
+                    </div>
+                </div>
+                <div class="owner-info">
+                    <h3>Mr. Manoj Soni</h3>
+                    <p class="owner-title">Founder & Head Chef</p>
+                    <p>With over 20 years of culinary expertise, Mr. Manoj Soni brings traditional Indian flavors with a modern twist to every event. His passion for authentic cuisine and exceptional service has made Seema Caters the premier choice for luxury events.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="menu">
+        <div class="container">
+            <h2 class="section-title">Our Signature Menu</h2>
+            <div class="menu-categories">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="appetizers">Appetizers</button>
+                <button class="category-btn" data-category="main-course">Main Course</button>
+                <button class="category-btn" data-category="desserts">Desserts</button>
+                <button class="category-btn" data-category="beverages">Beverages</button>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item" data-category="appetizers">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Samosa Chaat">
+                        <h3>Samosa Chaat</h3>
+                        <p>Crispy samosas with tangy chutneys and yogurt</p>
+                        <span class="price">₹180</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-category="appetizers">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Paneer Tikka">
+                        <h3>Paneer Tikka</h3>
+                        <p>Marinated cottage cheese grilled to perfection</p>
+                        <span class="price">₹220</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-category="main-course">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Butter Chicken">
+                        <h3>Butter Chicken</h3>
+                        <p>Creamy tomato-based curry with tender chicken</p>
+                        <span class="price">₹320</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-category="main-course">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1606755962773-d324e0a13086?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Dal Makhani">
+                        <h3>Dal Makhani</h3>
+                        <p>Slow-cooked black lentils with butter and cream</p>
+                        <span class="price">₹280</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-category="desserts">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Gulab Jamun">
+                        <h3>Gulab Jamun</h3>
+                        <p>Soft milk-solid dumplings in rose syrup</p>
+                        <span class="price">₹150</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-category="desserts">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1571576459437-037b9569382e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Rasmalai">
+                        <h3>Rasmalai</h3>
+                        <p>Fresh cheese patties in sweetened milk</p>
+                        <span class="price">₹160</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-category="beverages">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Masala Chai">
+                        <h3>Masala Chai</h3>
+                        <p>Traditional Indian tea with aromatic spices</p>
+                        <span class="price">₹80</span>
+                    </div>
+                </div>
+                <div class="menu-item" data-category="beverages">
+                    <div class="menu-card glass-card">
+                        <img src="https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Lassi">
+                        <h3>Lassi</h3>
+                        <p>Cooling yogurt-based drink with cardamom</p>
+                        <span class="price">₹120</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card glass-card">
+                    <i class="fas fa-ring service-icon"></i>
+                    <h3>Wedding Catering</h3>
+                    <p>Complete wedding catering solutions with traditional and contemporary dishes</p>
+                </div>
+                <div class="service-card glass-card">
+                    <i class="fas fa-glass-cheers service-icon"></i>
+                    <h3>Corporate Events</h3>
+                    <p>Elegant catering for conferences, meetings, and corporate gatherings</p>
+                </div>
+                <div class="service-card glass-card">
+                    <i class="fas fa-birthday-cake service-icon"></i>
+                    <h3>Birthday Parties</h3>
+                    <p>Memorable birthday celebrations with customized menus</p>
+                </div>
+                <div class="service-card glass-card">
+                    <i class="fas fa-home service-icon"></i>
+                    <h3>Home Delivery</h3>
+                    <p>Special occasion catering delivered fresh to your doorstep</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our Clients Say</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card glass-card">
+                    <p>"The food at our wedding was absolutely spectacular! Every dish was perfectly prepared and our guests couldn't stop praising the flavors."</p>
+                    <div class="client-info">
+                        <h4>Rajesh & Priya Sharma</h4>
+                        <span>Wedding Event - Jan 2024</span>
+                    </div>
+                </div>
+                <div class="testimonial-card glass-card">
+                    <p>"Professional, punctual, and delicious! Seema Caters made our corporate event a huge success with their exceptional service."</p>
+                    <div class="client-info">
+                        <h4>TechCorp Solutions</h4>
+                        <span>Corporate Event - Dec 2023</span>
+                    </div>
+                </div>
+                <div class="testimonial-card glass-card">
+                    <p>"Mr. Manoj's personal touch and attention to detail made our anniversary celebration truly memorable. Highly recommended!"</p>
+                    <div class="client-info">
+                        <h4>Vikram & Sunita Mehta</h4>
+                        <span>Anniversary Party - Nov 2023</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Seema Caters</h3>
+                    <p>Premium Indian Catering Excellence Since 2005</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-phone"></i> +91 8094441904</p>
+                    <p><i class="fas fa-envelope"></i> info@seemacaters.com</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
